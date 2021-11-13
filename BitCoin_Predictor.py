@@ -8,7 +8,7 @@
 
 import numpy as np
 import pandas as pd
-df = pd.read_csv("bitcoin.csv")
+df = pd.read_csv("bitcoin-info/bitcoin.csv")
 df.head()
 df.drop(['Date'],1,inplace=True)
 #Create the total number of days that you want to predict
