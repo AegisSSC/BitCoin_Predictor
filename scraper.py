@@ -20,7 +20,7 @@ listings = coin_data['props']['initialState']['cryptocurrency']['listingLatest']
 
 #for every id in the listing, create an id-slug pairing to use to grab the crypto's information
 for i in listings:
-    coins[str(i[id])] - i['slug']
+    coins[str(i['id'])] = i['slug']
 
 
 for i in coins:
