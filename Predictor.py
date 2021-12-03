@@ -65,9 +65,8 @@ def create_svm(xtrain, xtest, ytrain, ytest):
 #Returns: returns a Support Vector Regression Model 
 def predict_for_n_days(datafile, predictionDays):
     datafile['Prediction'] = datafile[['Price']].shift(-predictionDays)
-    #show the first 5 Rows
+    #show the first and last 5 Rows
     datafile.head()
-    #show the last 5 Rows
     datafile.tail()
     
     #create the independent data set
@@ -102,9 +101,8 @@ def predict_for_n_days(datafile, predictionDays):
 
 def main():
     #Get the filename that they would like to input
-    
     filename = 'bitcoin-info/bitcoin.csv'
-    filename = input("Please enter the filepath you would like to gather information from: "))
+    filename = input("Please enter the filepath you would like to gather information from: ")
     datafile = read_in_data(filename)
     #Get the number of days you would like to predict for
     predictionDays = 30
