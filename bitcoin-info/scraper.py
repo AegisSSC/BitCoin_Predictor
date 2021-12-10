@@ -1,3 +1,4 @@
+# https://tommycc.medium.com/web-scraping-crypto-prices-with-python-41072ea5b5bf
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd 
@@ -7,6 +8,9 @@ import time
 cmc = requests.get('https://coinmarketcap.com')
 soup = BeautifulSoup(cmc.content, 'html.parser')
 
+print("The Title of the HTML is: " )
+print(soup.title)
+print("The raw data formatted is: " )
 print(soup.prettify())
 
 #Get all of the json files associated with the ids
