@@ -8,6 +8,7 @@
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVR
 
@@ -56,7 +57,7 @@ def create_svm(xtrain, xtest, ytrain, ytest):
 
     #now that the model is trained, test the model
     svr_rbf_confidence = svr_rbf.score(xtest,ytest)
-    print('SVR_RBF accuracy = ',svr_rbf_confidence)
+    print('SVR_RBF accuracy (closer to 1 the better) = ',svr_rbf_confidence)
     return svr_rbf
 
 #Description: Builds and predicts the bitcoin prices for a given number 'n' days
@@ -68,18 +69,18 @@ def predict_for_n_days(datafile, predictionDays):
     #show the first and last 5 Rows
     datafile.head()
     datafile.tail()
-    
+    plt.plot(range(0,367), datafile['Price'])
     #create the independent data set
     x = np.array(datafile.drop(['Prediction'],1))
     #remove the last 'n' rows: where 'n' = predictionDays
     x = x[:len(datafile)-predictionDays]
-    print("The independent data set is" + x)
+    # print("The independent data set is" + x)
     
     #create the depedent data set
     y = np.array(datafile['Prediction'])
     #Get all values except for the last 'n' rows
     y = y[:-predictionDays]
-    print("The dependent data set is" + y)
+    # print("The dependent data set is" + y)
 
     #split the data so that 20% is used for testing
     xtrain, xtest, ytrain, ytest, predictionDays_array = split_for_training(datafile, predictionDays, x, y, test_percent=0.2)
@@ -87,24 +88,39 @@ def predict_for_n_days(datafile, predictionDays):
     #create a support vector machine
     svr_rbf = create_svm(xtrain, xtest, ytrain, ytest)
     svm_prediction = svr_rbf.predict(xtest)
-    print(svm_prediction)
-    print()
-    print(ytest)
+    # print(svm_prediction)
+    # print()
+    # print(ytest)
 
-    #Print the Model Predictions for the next 'n' days
+    #Plot the Model Predictions for the next 'n' days against the total graph
+    
     svm_prediction = svr_rbf.predict(predictionDays_array)
-    print(svm_prediction)
-    print()
-    #Print the actual price for 'n' Days
-    print(datafile.tail(predictionDays))
+    # plt.plot(xtest,svm_prediction, label = "Predicted Outcome")
+    plt.plot(range(367-predictionDays,367), svm_prediction, label = "prediction")
+    plt.plot(range(367-predictionDays, 367), datafile.tail(predictionDays))
+    plt.xlabel('x - time interval (days) ')
+    plt.ylabel('y - value of the stock ($USD)')
+    plt.title("Predicting the expected value of a cryptocurrency")
+    plt.legend()
+    plt.show()
+
+
+    # print(svm_prediction)
+    # print()
+    # #Print the actual price for 'n' Days
+    # print(datafile.tail(predictionDays))
 
 
 def main():
     #Get the filename that they would like to input
     filename = 'bitcoin-info/bitcoin.csv'
-    filename = input("Please enter the filepath you would like to gather information from: ")
+    # filename = input("Please enter the filepath you would like to gather information from: ")
     datafile = read_in_data(filename)
     #Get the number of days you would like to predict for
     predictionDays = 30
-    predictionDays = int(input("Please enter the the number of days you would like to predict: "))
+    # predictionDays = int(input("Please enter the the number of days you would like to predict: "))
     predict_for_n_days(datafile, predictionDays)
+
+    
+if __name__ == "__main__":
+    main()  
