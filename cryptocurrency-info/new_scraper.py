@@ -16,6 +16,7 @@ for coin in coindesk20_list:
     df = pd.DataFrame(index=[0])
     
     # Define the Start Date and End Date
+    #                       year, month, day, hour, minute
     end_datetime = datetime(2021, 8, 1, 0, 0)
     datetime_checkpt = datetime(2021, 7, 1, 0, 0)
     

@@ -11,6 +11,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVR
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import Pipeline
 
 #Description: Read in the data from the given csv file so that it can be used by the program
 #Input: filename: is the filepath from the environment to the datafile. 
@@ -23,7 +25,7 @@ def read_in_data(filename):
     datafile.tail()
 
     #Remove the first column that starts with Date so that we only have price information. (the model in this instance is date agnostic)
-    datafile.drop(['Date'], 1, inplace = True)
+    datafile.drop(['Datetime'], 1, inplace = True)
 
     #print the updated head and tail now that we have removed the date column
     datafile.head()
@@ -60,30 +62,43 @@ def create_svm(xtrain, xtest, ytrain, ytest):
     print('SVR_RBF accuracy (closer to 1 the better) = ',svr_rbf_confidence)
     return svr_rbf
 
+
+def create_poly(xtrain, xtest, ytrain, ytest, i):
+    #create a Polynomial Regression
+    poly_reg = np.polyfit(xtrain, ytrain, i)
+    #Now that the model is trained, test the model
+    poly_reg_confidence = np.poly1d
+
+    return poly_reg
 #Description: Builds and predicts the bitcoin prices for a given number 'n' days
 #Input: datafile: The file that contains all of the values from the csv file
-#       predictionDays: The number of days that you want to predict for
+#       predictionEntries: The number of entries that you want to predict for
 #Returns: returns a Support Vector Regression Model 
-def predict_for_n_days(datafile, predictionDays):
-    datafile['Prediction'] = datafile[['Price']].shift(-predictionDays)
+def predict_for_n_entries(datafile, predictionEntries):
+    datafile['Prediction'] = datafile[['Price']].shift(-predictionEntries)
     #show the first and last 5 Rows
     datafile.head()
     datafile.tail()
-    plt.plot(range(0,367), datafile['Price'])
+
+    #Include dynamic file length operation
+    total_entries = len(datafile)
+    
+    
+    # plt.plot(total_entries, datafile['Price'])
     #create the independent data set
     x = np.array(datafile.drop(['Prediction'],1))
     #remove the last 'n' rows: where 'n' = predictionDays
-    x = x[:len(datafile)-predictionDays]
+    x = x[:len(datafile)-predictionEntries]
     # print("The independent data set is" + x)
     
     #create the depedent data set
     y = np.array(datafile['Prediction'])
     #Get all values except for the last 'n' rows
-    y = y[:-predictionDays]
+    y = y[:-predictionEntries]
     # print("The dependent data set is" + y)
 
     #split the data so that 20% is used for testing
-    xtrain, xtest, ytrain, ytest, predictionDays_array = split_for_training(datafile, predictionDays, x, y, test_percent=0.2)
+    xtrain, xtest, ytrain, ytest, predictionEntries_array = split_for_training(datafile, predictionEntries, x, y, test_percent=0.2)
 
     #create a support vector machine
     svr_rbf = create_svm(xtrain, xtest, ytrain, ytest)
@@ -94,10 +109,10 @@ def predict_for_n_days(datafile, predictionDays):
 
     #Plot the Model Predictions for the next 'n' days against the total graph
     
-    svm_prediction = svr_rbf.predict(predictionDays_array)
+    svm_prediction = svr_rbf.predict(predictionEntries_array)
     # plt.plot(xtest,svm_prediction, label = "Predicted Outcome")
-    plt.plot(range(367-predictionDays,367), svm_prediction, label = "prediction")
-    plt.plot(range(367-predictionDays, 367), datafile.tail(predictionDays))
+    plt.plot(range(total_entries - predictionEntries, total_entries), svm_prediction, label = "Predicted Outcome")
+    plt.plot(range(total_entries - predictionEntries,total_entries), datafile.tail(predictionEntries), label = "Actual Outcome")
     plt.xlabel('x - time interval (days) ')
     plt.ylabel('y - value of the stock ($USD)')
     plt.title("Predicting the expected value of a cryptocurrency")
@@ -105,10 +120,11 @@ def predict_for_n_days(datafile, predictionDays):
     plt.show()
 
 
-    # print(svm_prediction)
-    # print()
-    # #Print the actual price for 'n' Days
-    # print(datafile.tail(predictionDays))
+
+    #create a polynomial regression model
+    #find what degree polynomial works best for the model
+    for i in range(0,100):
+        p = np.polyfit(xtrain,ytrain, i)
 
 
 def main():
@@ -116,10 +132,11 @@ def main():
     filename = 'bitcoin-info/bitcoin.csv'
     # filename = input("Please enter the filepath you would like to gather information from: ")
     datafile = read_in_data(filename)
-    #Get the number of days you would like to predict for
-    predictionDays = 30
+    filelen = len(datafile)
+    #Get the number of entries you would like to predict for
+    predictionEntries = 30
     # predictionDays = int(input("Please enter the the number of days you would like to predict: "))
-    predict_for_n_days(datafile, predictionDays)
+    predict_for_n_entries(datafile, predictionEntries)
 
     
 if __name__ == "__main__":
