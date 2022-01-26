@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 df = pd.read_csv("bitcoin-info/bitcoin.csv")
 df.head()
-df.drop(['Date'],1,inplace=True)
+df.drop(['Datetime'],1,inplace=True)
 #Create the total number of days that you want to predict
 predictionDays = 30
 # Create another column shifted 'n'  units up

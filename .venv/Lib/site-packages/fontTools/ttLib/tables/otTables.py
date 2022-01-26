@@ -1182,7 +1182,6 @@ class COLR(BaseTable):
 			if conv.name != "LayerRecordCount":
 				subReader.advance(conv.staticSize)
 				continue
-			conv = self.getConverterByName("LayerRecordCount")
 			reader[conv.name] = conv.read(subReader, font, tableDict={})
 			break
 		else:
@@ -1635,14 +1634,17 @@ def fixLookupOverFlows(ttf, overflowRecord):
 			return ok
 		lookup = lookups[lookupIndex]
 
-	lookup.LookupType = extType
-	for si in range(len(lookup.SubTable)):
-		subTable = lookup.SubTable[si]
-		extSubTableClass = lookupTypes[overflowRecord.tableType][extType]
-		extSubTable = extSubTableClass()
-		extSubTable.Format = 1
-		extSubTable.ExtSubTable = subTable
-		lookup.SubTable[si] = extSubTable
+	for lookupIndex in range(lookupIndex, len(lookups)):
+		lookup = lookups[lookupIndex]
+		if lookup.LookupType != extType:
+			lookup.LookupType = extType
+			for si in range(len(lookup.SubTable)):
+				subTable = lookup.SubTable[si]
+				extSubTableClass = lookupTypes[overflowRecord.tableType][extType]
+				extSubTable = extSubTableClass()
+				extSubTable.Format = 1
+				extSubTable.ExtSubTable = subTable
+				lookup.SubTable[si] = extSubTable
 	ok = 1
 	return ok
 
