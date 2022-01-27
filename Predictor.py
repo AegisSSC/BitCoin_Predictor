@@ -9,7 +9,9 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
+import seaborn as sns
+
 from sklearn.svm import SVR
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import Pipeline
@@ -34,6 +36,9 @@ def read_in_data(filename):
 #Description: Read in the data from the given csv file so that it can be used by the program
 def split_for_training(datafile, predictionDays,independent_array, dependent_array, test_percent):
     xtrain, xtest, ytrain, ytest = train_test_split(independent_array, dependent_array, test_size = test_percent)
+    print("The length of xtrain is" + str(len(xtrain)))
+    print("The length of ytrain is" + str(len(ytrain)))
+    
     predictionDays_array = np.array(datafile.drop(['Prediction'],1))[-predictionDays:]
     print(predictionDays_array)
     return xtrain, xtest, ytrain, ytest, predictionDays_array
@@ -87,7 +92,7 @@ def predict_for_n_entries(datafile, predictionEntries):
 
     #create a support vector machine
     svr_rbf = create_svm(xtrain, xtest, ytrain, ytest)
-    svm_prediction = svr_rbf.predict(xtest)
+    svm_test = svr_rbf.predict(xtest)
     # print(svm_prediction)
     # print()
     # print(ytest)
@@ -95,7 +100,17 @@ def predict_for_n_entries(datafile, predictionEntries):
     #Plot the Model Predictions for the next 'n' days against the total graph
     
     svm_prediction = svr_rbf.predict(predictionEntries_array)
-    plt.plot(xtest,svm_prediction, label = "Predicted Outcome")
+    # print("Predicting Array Length is " + str(len(predictionEntries_array)))
+
+    # print("SVM Length is " + str(len(svm_prediction)))
+    # print("Xtest Length is " + str(len(xtest)))
+
+
+
+    plt.scatter(xtest,svm_test,label = "Tested Outcome")
+    plt.scatter(xtest,ytest, label = "Expected Outcome")
+    plt.show()
+    
     plt.plot(range(total_entries - predictionEntries, total_entries), svm_prediction, label = "Predicted Outcome")
     plt.plot(range(total_entries - predictionEntries,total_entries), datafile.tail(predictionEntries), label = "Actual Outcome")
     plt.xlabel('x - time interval (days) ')
